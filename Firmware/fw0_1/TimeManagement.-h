@@ -1,0 +1,81 @@
+// TimeManagement.h
+
+
+#ifndef _TimeManagement_h
+#define _TimeManagement_h
+
+  #if defined(ARDUINO) && ARDUINO >= 100
+	  #include "Arduino.h"
+  #else
+	  #include "WProgram.h"
+  #endif
+
+//  #include <NtpClientLib.h>
+
+
+
+	typedef struct {
+		int second;
+		int minute;
+		int hour;
+		int wDay;   // day of week, sunday is day 1
+		int day;
+		int month;
+		int year;   // offset from 1970; 
+		bool isDST;
+		String TZName;
+	} 	sTime;
+
+	typedef struct {
+		sTime time;
+		bool synced;
+	} SSyncInfo;
+
+	enum _dstZones { NONE = 0,EUGMT = 1, EUWET = 2, EUCET = 3, EUEET = 4, USPT = 5, USMT = 6, USCT = 7, USET = 8, AUET = 9 };
+
+	struct TimeZone {
+		float offset;
+		String name;
+		String shortName;
+	};
+
+	
+	
+	class TimeManagementClass
+	{
+	 private:
+		 void processSyncEvent(NTPSyncEvent_t ntpEvent);
+		 void readTimeOffsetFromEEPROM();
+
+		 _dstZones readDSTZoneFromEEPROM();
+		 
+	public:
+		 
+		TimeZone TimeZones[41];
+		 bool getSyncFlag();
+		 void resetSyncFlag();
+		 void resetTime();
+		 time_t doTime(int hr, int min, int sec, int dy, int mnth, int yr);
+		 sTime GetTime(_dstZones DSTZone, int _timeZoneIndex, time_t time);
+		 sTime GetUTC();
+		 SSyncInfo GetSyncInfo();
+	
+		 TimeManagement();
+		 void printTime(time_t t, char *tz, char *loc);
+		 bool triggerSyncEvent();
+
+		 String DSTZoneToString(_dstZones DSTZone);
+
+		 _dstZones getDSTZone();
+		 String getDSTZoneDescription(_dstZones dstZone);
+		 String getDSTShortZoneDescription(_dstZones dstZone);
+		 void setDSTZone(_dstZones dstZone);
+	 
+		 float getTimeOffset();
+		 String getTimeOffsetOLED();
+		 String getTimeOffsetDescription();
+	 	 int readTimeOffsetIndex();
+		 void setTimeOffsetIndex(int timeOffsetIndex);
+		 
+	};
+#endif
